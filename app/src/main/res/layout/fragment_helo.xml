@@ -15,6 +15,7 @@
         android:layout_marginTop="16dp"
         android:layout_margin="10dp"
         android:text="Đã thích"
+        android:textStyle="bold"
         android:layout_marginStart="10dp"
         android:textColor="@color/red"
         android:textSize="20dp"

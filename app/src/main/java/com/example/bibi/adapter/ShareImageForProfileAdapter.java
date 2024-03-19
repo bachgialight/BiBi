@@ -35,12 +35,10 @@ public class ShareImageForProfileAdapter extends RecyclerView.Adapter<ShareImage
     public void onBindViewHolder(@NonNull ShareImageForProfileAdapter.ViewHolder holder, int position) {
         Glide.with(context).load(list.get(position).getPostImage()).into(holder.imageViewShareImage);
     }
-
     @Override
     public int getItemCount() {
         return list.size();
     }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageViewShareImage;
 

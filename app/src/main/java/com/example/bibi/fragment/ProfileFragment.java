@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import com.example.bibi.R;
 import com.example.bibi.activity.ImageLabelingActivity;
 import com.example.bibi.activity.PostImageActivity;
 import com.example.bibi.activity.SettingActivity;
+import com.example.bibi.activity.SettingProfileActivity;
 import com.example.bibi.untils.FirebaseUntil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -50,12 +52,13 @@ public class ProfileFragment extends Fragment {
     TextView birthday,location,gender;
     ImageView settingImage,imageGender,AIImage;
     LottieAnimationView progressBar;
-
+    Button btnEditProfile;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        btnEditProfile = view.findViewById(R.id.btn_edit_profile);
         imageProfile = view.findViewById(R.id.image_profile);
         nameUser = view.findViewById(R.id.user_name);
         postImage = view.findViewById(R.id.post_image);
@@ -132,6 +135,13 @@ public class ProfileFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        btnEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ProfileFragment.this.getActivity(), SettingProfileActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
@@ -147,7 +157,6 @@ public class ProfileFragment extends Fragment {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
                         progressBar.setVisibility(View.GONE);
-
                         // lấy url và tên của người dùng
                         String imageUrl = documentSnapshot.getString("profileImage");
                         String nameProfile = documentSnapshot.getString("name");
