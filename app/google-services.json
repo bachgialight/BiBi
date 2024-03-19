@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "378692357094",
+    "project_id": "bibi-ec014",
+    "storage_bucket": "bibi-ec014.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378692357094:android:41fabe05711c74db09e427",
+        "android_client_info": {
+          "package_name": "com.example.bibi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYrXWQpqKhukuIeYyJmv9zdU5fXLlUouI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

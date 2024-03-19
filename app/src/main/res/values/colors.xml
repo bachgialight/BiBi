@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="yellow_main">#fcc603</color>
+    <color name="light_white">#D2D2D2</color>
+
+    <color name="cart_1">#A3E4D7</color>
+    <color name="cart_2">#F9EF7F</color>
+    <color name="red">#E12020</color>
+    <color name="male">#AEE</color>
+    <color name="female">#EECCAC</color>
+    <color name="other">#99CA9C</color>
+
+
+</resources>
