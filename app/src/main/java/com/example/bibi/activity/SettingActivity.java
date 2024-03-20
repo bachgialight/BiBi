@@ -21,7 +21,7 @@ public class SettingActivity extends AppCompatActivity {
     TextView logout;
     ImageView backImage;
     FirebaseAuth auth;
-    LinearLayout saveImage;
+    LinearLayout saveImage,settingAccount;
     FirebaseUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class SettingActivity extends AppCompatActivity {
         logout = findViewById(R.id.logout);
         backImage = findViewById(R.id.back_image);
         saveImage = findViewById(R.id.save_image);
-
+        settingAccount = findViewById(R.id.setting_account);
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         logout.setOnClickListener(new View.OnClickListener() {
@@ -52,6 +52,14 @@ public class SettingActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        settingAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingActivity.this, SettingAccountActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
     public void loginOut() {
 

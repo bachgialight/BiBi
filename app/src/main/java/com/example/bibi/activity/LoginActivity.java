@@ -24,9 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         editTextInputEmail = findViewById(R.id.input_login_email);
-
         editTextInputPassWord = findViewById(R.id.input_login_passWord);
         btnLogin = findViewById(R.id.login_btn);
         // đăng nhập bằng email và password;
@@ -34,7 +32,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 inPutLoginEmailAndPassWord();
-
             }
         });
     }

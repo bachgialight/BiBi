@@ -78,6 +78,7 @@ public class SettingProfileActivity extends AppCompatActivity {
                     }
                 });
     }
+
     private void updateProfile() {
         progress.setVisibility(View.VISIBLE);
 
@@ -86,7 +87,6 @@ public class SettingProfileActivity extends AppCompatActivity {
         String sex = editSex.getText().toString();
         String website = editWebUrl.getText().toString();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         db.collection("users")
                 .document(user.getUid())
                 .update("name",name,"sex",sex,"website",website)

@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -15,15 +16,22 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.bibi.R;
 import com.example.bibi.model.PostsModel;
 import com.example.bibi.model.UsersModel;
@@ -64,17 +72,19 @@ public class PostImageActivity extends AppCompatActivity {
     ProgressBar progressBar;
     private DocumentReference imageDocument;  // Thêm biến thành viên
     TextView upload;
+    LottieAnimationView progress;
+
+    LinearLayout settingObject;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_image);
-
         postImage = findViewById(R.id.post_image);
         cancelImage = findViewById(R.id.cancel);
         editTextNote = findViewById(R.id.edit_text_note);
         ButtonShare = findViewById(R.id.button_up_load);
-        progressBar = findViewById(R.id.progress_circular);
-
+        progress = findViewById(R.id.progress_circular);
+        settingObject = findViewById(R.id.setting_object);
         cancelImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +112,54 @@ public class PostImageActivity extends AppCompatActivity {
             }
         });
 
+        settingObject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // chuyển hướng đến cày đặt đối tượng có thể thấy được bài viết bằng cách hiện thị dialog
+                final Dialog dialog = new Dialog(PostImageActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.object_can_see);
+                dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_diaglog);
+                Switch switchEveryone = dialog.findViewById(R.id.switch_everyone);
+                Switch switchFollowMe = dialog.findViewById(R.id.switch_follow_me);
+                Switch switchMe = dialog.findViewById(R.id.switch_me);
+                switchEveryone.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            // kiểm tra xem nếu switch hiện tại là true(bật) thì những switch khác thì false(tắt)
+                            switchFollowMe.setChecked(false);
+                            switchMe.setChecked(false);
+                        }
+                    }
+                });
 
+                switchFollowMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            switchEveryone.setChecked(false);
+                            switchMe.setChecked(false);
+                        }
+                    }
+                });
+
+                switchMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            switchEveryone.setChecked(false);
+                            switchFollowMe.setChecked(false);
+                        }
+                    }
+                });
+                dialog.show();
+
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
+                dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                dialog.getWindow().setGravity(Gravity.BOTTOM);
+            }
+        });
     }
 
 
@@ -125,6 +182,7 @@ public class PostImageActivity extends AppCompatActivity {
     }
     // Sau đó, trong hàm uploadImageToFirebase:
     private void uploadImageToFirebase() {
+        progress.setVisibility(View.VISIBLE);
         try {
             // Ensure an image is selected
             if (backgroundImageUri != null) {
@@ -235,6 +293,8 @@ public class PostImageActivity extends AppCompatActivity {
                                                 imageDocument.update(updateData)
                                                         .addOnSuccessListener(aVoid1 -> {
                                                             // Handle success
+                                                            progress.setVisibility(View.GONE);
+
                                                             Toast.makeText(PostImageActivity.this, "Đăng thành công", Toast.LENGTH_SHORT).show();
                                                             finish();
                                                         })

@@ -244,7 +244,7 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
     // Show dialog with matching posts
     private void showDialogWithMatchingPosts(List<PostsModel> matchingPosts) {
         Dialog dialog = new Dialog(context);
-        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);// xóa bỏ tiêu đề của cửa sổ
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);// xóa bỏ tiêu đề của cửa sổ
         dialog.setContentView(R.layout.dialog_matching_posts);// thiết lập nội dung cho layout
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);// đặt nên cho layout
         RecyclerView recyclerView = dialog.findViewById(R.id.recyclerViewMatchingPosts);

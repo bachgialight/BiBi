@@ -28,6 +28,9 @@
         android:theme="@style/Theme.BIBI"
         tools:targetApi="31">
         <activity
+            android:name=".activity.SettingAccountActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.SaveImageActivity"
             android:exported="false" />
         <activity

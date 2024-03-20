@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     tools:context=".activity.PostImageActivity">
-
     <ImageView
         android:id="@+id/cancel"
         android:layout_width="30dp"
@@ -18,18 +17,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
 
-    <ProgressBar
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/progress_circular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.836" />
-
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/load" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,7 +83,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_text_note" />
-
     <LinearLayout
         android:id="@+id/setting_object"
         android:layout_width="match_parent"
@@ -98,20 +96,17 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setting_position">
-
         <ImageView
             android:layout_width="27dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/earth"
             app:tint="@color/white" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
-
             android:orientation="horizontal">
 
             <TextView
