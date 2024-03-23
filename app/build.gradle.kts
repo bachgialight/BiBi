@@ -30,6 +30,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        mlModelBinding = true
+    }
 }
 
 dependencies {
@@ -39,6 +42,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-firestore:24.10.3")
     implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -79,4 +83,8 @@ dependencies {
     // The GPU delegate library is optional. Depend on it as needed.
     implementation ("org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly-SNAPSHOT")
     implementation ("org.tensorflow:tensorflow-lite-support:0.0.0-nightly-SNAPSHOT")
+
+    implementation ("com.algolia:algoliasearch-core:3.16.5")
+    implementation ("com.algolia:algoliasearch-java-net:3.16.5")
+    //implementation ("com.algolia:algoliasearch-android:3.27.0")
 }

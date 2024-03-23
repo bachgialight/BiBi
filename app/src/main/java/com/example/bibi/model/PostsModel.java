@@ -2,6 +2,7 @@ package com.example.bibi.model;
 
 import com.google.firebase.Timestamp;
 
+import java.util.List;
 import java.util.Map;
 
 public class PostsModel {
@@ -10,8 +11,20 @@ public class PostsModel {
     String nameUser;
     String title;
     String postId;
+    String imageUser;
     Map<String, Float> labelMap; // Thêm trường này để lưu trữ thông tin nhãn và mức độ phần trăm
+
+    List<String> tags;
     long timestamp;
+    private float interestLevel;
+
+    public float getInterestLevel() {
+        return interestLevel;
+    }
+
+    public void setInterestLevel(float interestLevel) {
+        this.interestLevel = interestLevel;
+    }
     public PostsModel() {
     }
 
@@ -47,6 +60,22 @@ public class PostsModel {
         }
     }
 
+    public String getImageUser() {
+        return imageUser;
+    }
+
+    public void setImageUser(String imageUser) {
+        this.imageUser = imageUser;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
     public boolean isMatching(Map<String, Float> selectedLabelMap) {
         for (Map.Entry<String, Float> entry : selectedLabelMap.entrySet()) {
             String label = entry.getKey();
@@ -60,6 +89,7 @@ public class PostsModel {
         }
         return true;
     }
+
     public Map<String, Float> getLabels() {
         return labelMap;
     }

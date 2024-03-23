@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_margin="5dp"
+    android:layout_height="wrap_content">
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:layout_width="160dp"
+        android:id="@+id/image_user"
+        android:adjustViewBounds="true"
+        android:layout_marginStart="5dp"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="5dp"
+        app:riv_corner_radius="12dp"
+        android:layout_height="200dp">
+
+    </com.makeramen.roundedimageview.RoundedImageView>
+    <ImageView
+        android:id="@+id/show_item_dialog_setting"
+        android:layout_margin="5dp"
+        android:layout_gravity="end"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/settings"
+        android:layout_width="30dp"
+        android:padding="5dp"
+        android:layout_height="30dp"
+        app:tint="@color/white" />
+
+</LinearLayout>
+

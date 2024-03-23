@@ -36,7 +36,6 @@ import java.util.List;
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             PostsModel post = matchingPosts.get(position);
-
             // Hiển thị thông tin bài viết, ví dụ:
             Glide.with(context).load(post.getPostImage()).into(holder.imageView);
         }

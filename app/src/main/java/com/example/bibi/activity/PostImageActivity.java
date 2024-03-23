@@ -1,5 +1,7 @@
 package com.example.bibi.activity;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,8 +44,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -56,15 +61,19 @@ import com.google.firebase.storage.StorageTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PostImageActivity extends AppCompatActivity {
     ImageView postImage,cancelImage;
     Button ButtonShare;
-    EditText editTextNote;
-
+    EditText editTextNote,editTextTags;
 
     private static final int PReqCode = 2;
     private static final int REQUESCODE = 2;
@@ -75,6 +84,9 @@ public class PostImageActivity extends AppCompatActivity {
     LottieAnimationView progress;
 
     LinearLayout settingObject;
+
+    FirebaseAuth  auth;
+    FirebaseUser user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +97,10 @@ public class PostImageActivity extends AppCompatActivity {
         ButtonShare = findViewById(R.id.button_up_load);
         progress = findViewById(R.id.progress_circular);
         settingObject = findViewById(R.id.setting_object);
+        editTextTags = findViewById(R.id.edit_text_tags);
+
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         cancelImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,7 +149,6 @@ public class PostImageActivity extends AppCompatActivity {
                         }
                     }
                 });
-
                 switchFollowMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -143,7 +158,6 @@ public class PostImageActivity extends AppCompatActivity {
                         }
                     }
                 });
-
                 switchMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -154,7 +168,6 @@ public class PostImageActivity extends AppCompatActivity {
                     }
                 });
                 dialog.show();
-
                 dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 dialog.getWindow().setGravity(Gravity.BOTTOM);
@@ -240,17 +253,27 @@ public class PostImageActivity extends AppCompatActivity {
         // Replace "posts" with your desired collection name
         CollectionReference postsCollection = db.collection("posts");
 
+        //lấy ảnh của người dùng hiện tại ra
+
         // Create a new document for each image
         DocumentReference imageDocument = postsCollection.document();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                // Upload the image to Storage
 
-        // Upload the image to Storage
-        uploadImageToStorage(storageReference, imageIdentifier, imageDocument, labelMap, backgroundImageUri);
+                String imageProfileUser = documentSnapshot.getString("profileImage");
+                String nameUser = documentSnapshot.getString("name");
+                uploadImageToStorage(storageReference, imageIdentifier, imageDocument, labelMap, backgroundImageUri,imageProfileUser,nameUser);
+            }
+        });
+        //uploadImageToStorage(storageReference, imageIdentifier, imageDocument, labelMap, backgroundImageUri);
     }
     // dùng Firebase Machine Learning Kit để gắn nhãn cho hình ảnh bằng labelMap,nhằm xác định được nội dung,
     // khả năng nhận dạng hình ảnh
-    private void uploadImageToStorage(StorageReference storageReference, String imageIdentifier, DocumentReference imageDocument, Map<String, Float> labelMap, Uri backgroundImageUri) {
+    private void uploadImageToStorage(StorageReference storageReference, String imageIdentifier, DocumentReference imageDocument, Map<String, Float> labelMap, Uri backgroundImageUri,String imageProfileUser,String nameUser) {
         final StorageReference imageFilePath = storageReference.child(imageIdentifier);
-
         // Upload the image
         imageFilePath.putFile(backgroundImageUri)
                 .addOnSuccessListener(taskSnapshot -> {
@@ -273,6 +296,13 @@ public class PostImageActivity extends AppCompatActivity {
                                     for (FirebaseVisionImageLabel label : labels) {
                                         labelMap.put(label.getText(), label.getConfidence());
                                     }
+                                    // Lấy danh sách thẻ từ trường văn bản nhập
+                                    String tagsInput = editTextTags.getText().toString();
+
+                                    // Tách các thẻ thành một mảng các thẻ, bằng khoảng chắn
+                                    String[] tagsArray = tagsInput.split("\\s+");
+                                    // Chuyển đổi mảng thành danh sách
+                                    List<String> tagsList = Arrays.asList(tagsArray);
 
                                     // Update the existing document in the "posts" collection with additional fields
                                     imageDocument.set(new HashMap<String, Object>() {{
@@ -281,6 +311,10 @@ public class PostImageActivity extends AppCompatActivity {
                                                 put("postImage", imageUrl);
                                                 put("labelMap", labelMap);
                                                 put("timestamp", System.currentTimeMillis());
+                                                put("status","everyone");
+                                                put("tags",tagsList);
+                                                put("name",nameUser);
+                                                put("imageUser",imageProfileUser);
                                                 // Add other fields as needed
                                             }}, SetOptions.merge())
                                             .addOnSuccessListener(aVoid -> {
@@ -294,7 +328,9 @@ public class PostImageActivity extends AppCompatActivity {
                                                         .addOnSuccessListener(aVoid1 -> {
                                                             // Handle success
                                                             progress.setVisibility(View.GONE);
-
+                                                            // lưu tags vào trong firebase
+                                                            // Lưu tags vào collection "listTags"
+                                                            saveTagsForFirebase(tagsList);
                                                             Toast.makeText(PostImageActivity.this, "Đăng thành công", Toast.LENGTH_SHORT).show();
                                                             finish();
                                                         })
@@ -319,7 +355,51 @@ public class PostImageActivity extends AppCompatActivity {
                     Toast.makeText(PostImageActivity.this, "Error uploading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+    private void saveTagsForFirebase(List<String> tagsList) {
+        // Lưu tất cả các tags vào một tài liệu duy nhất trong collection "listTags"
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference allTagsDocRef = db.collection("listTags").document("allTags");
 
+        // Đọc danh sách tags hiện tại từ tài liệu "allTags"
+        allTagsDocRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Nếu tài liệu "allTags" đã tồn tại, lấy danh sách tags hiện tại
+                        Set<String> existingTagsSet = new HashSet<>((List<String>) documentSnapshot.get("tags"));
+
+                        // Thêm các tags mới vào danh sách tags hiện tại
+                        existingTagsSet.addAll(tagsList);
+
+                        // Cập nhật tài liệu "allTags" với danh sách tags mới (không trùng lặp)
+                        allTagsDocRef.update("tags", new ArrayList<>(existingTagsSet))
+                                .addOnSuccessListener(aVoid -> {
+                                    // Xử lý khi cập nhật thành công
+                                    Log.d(TAG, "All tags updated successfully");
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Xử lý khi cập nhật thất bại
+                                    Log.w(TAG, "Error updating all tags", e);
+                                });
+                    } else {
+                        // Nếu tài liệu "allTags" chưa tồn tại, tạo một tài liệu mới và lưu tags vào đó
+                        Map<String, Object> tagsData = new HashMap<>();
+                        tagsData.put("tags", tagsList);
+                        allTagsDocRef.set(tagsData)
+                                .addOnSuccessListener(aVoid -> {
+                                    // Xử lý khi lưu trữ thành công
+                                    Log.d(TAG, "All tags created and saved successfully");
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Xử lý khi lưu trữ thất bại
+                                    Log.w(TAG, "Error creating and saving all tags", e);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Xử lý khi đọc tài liệu "allTags" thất bại
+                    Log.w(TAG, "Error reading all tags", e);
+                });
+    }
 
 
     public static CollectionReference postsCollection() {

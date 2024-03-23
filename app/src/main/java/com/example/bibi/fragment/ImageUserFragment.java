@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.bibi.R;
+import com.example.bibi.adapter.ImageUserAdapter;
 import com.example.bibi.adapter.PostImageAdapter;
 import com.example.bibi.model.PostsModel;
 import com.example.bibi.untils.FirebaseUntil;
@@ -31,7 +33,7 @@ import java.util.List;
 public class ImageUserFragment extends Fragment {
     RecyclerView recyclerView;
     List<PostsModel> postsList;
-    PostImageAdapter adapter;
+    ImageUserAdapter adapter;
     LottieAnimationView progressBar;
 
     @Override
@@ -41,9 +43,8 @@ public class ImageUserFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
 
         recyclerView = view.findViewById(R.id.recycler_view_image);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        recyclerView.setLayoutManager(layoutManager);
+
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));;
 
         postsList = new ArrayList<>();
 
@@ -63,7 +64,7 @@ public class ImageUserFragment extends Fragment {
                         PostsModel postsModel = document.toObject(PostsModel.class);
                         postsList.add(postsModel);
                     }
-                    adapter = new PostImageAdapter(getContext(), postsList);
+                    adapter = new ImageUserAdapter(getContext(), postsList);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);

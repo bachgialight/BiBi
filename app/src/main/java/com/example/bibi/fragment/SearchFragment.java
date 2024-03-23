@@ -38,6 +38,7 @@ public class SearchFragment extends Fragment {
     List<PostsModel> list;
     SearchImageLabelsAdapter adapter;
     FirebaseFirestore db;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -63,6 +64,12 @@ public class SearchFragment extends Fragment {
 
     private void performSearch(String searchItem) {
         CollectionReference postsCollection = db.collection("posts");
+
+        // Chuyển đổi searchItem sang chữ thường (hoặc chữ hoa) để không phân biệt trường hợp
+        searchItem = searchItem.toLowerCase(); // hoặc sử dụng toUpperCase() nếu bạn muốn chuyển đổi sang chữ hoa
+
+        // Tạo một truy vấn để tìm kiếm trong trường labelMap
+        String finalSearchItem = searchItem;
         postsCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<PostsModel> posts = new ArrayList<>();
@@ -71,22 +78,24 @@ public class SearchFragment extends Fragment {
                     posts.add(post);
                 }
 
-                // Tìm kiếm ảnh dựa trên từ khóa
+                // Tìm kiếm bài đăng dựa trên trường labelMap (không phân biệt chữ hoa và chữ thường)
                 List<PostsModel> filteredPosts = new ArrayList<>();
                 for (PostsModel post : posts) {
-                    if (post.getLabelMap().containsKey(searchItem)) {
-                        filteredPosts.add(post);
+                    for (String label : post.getLabelMap().keySet()) {
+                        if (label.toLowerCase().contains(finalSearchItem)) { // Chuyển đổi label sang chữ thường để so sánh
+                            filteredPosts.add(post);
+                            break; // Đã tìm thấy một nhãn phù hợp, không cần kiểm tra các nhãn khác của bài đăng này
+                        }
                     }
                 }
 
-                // Hiển thị kết quả lên RecyclerView
+                // Hiển thị kết quả tìm kiếm lên RecyclerView
                 displaySearchResults(filteredPosts);
             } else {
                 // Xử lý khi có lỗi xảy ra
             }
         });
     }
-
     private void displaySearchResults(List<PostsModel> filteredPosts) {
         adapter = new SearchImageLabelsAdapter(getContext(),filteredPosts);
         recyclerViewSearchObject.setHasFixedSize(true);

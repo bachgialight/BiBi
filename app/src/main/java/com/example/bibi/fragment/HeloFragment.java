@@ -40,7 +40,6 @@ public class HeloFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_helo, container, false);
-
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         recyclerViewHeart = view.findViewById(R.id.recycler_view_image_heart);
