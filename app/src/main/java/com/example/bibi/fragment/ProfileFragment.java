@@ -1,21 +1,35 @@
 package com.example.bibi.fragment;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
@@ -24,13 +38,22 @@ import com.example.bibi.activity.ImageLabelingActivity;
 import com.example.bibi.activity.PostImageActivity;
 import com.example.bibi.activity.SettingActivity;
 import com.example.bibi.activity.SettingProfileActivity;
+import com.example.bibi.activity.UserNameActivity;
+import com.example.bibi.model.UsersModel;
 import com.example.bibi.untils.FirebaseUntil;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
@@ -38,7 +61,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class ProfileFragment extends Fragment {
@@ -50,9 +75,18 @@ public class ProfileFragment extends Fragment {
     DocumentReference documentReference;
     int selectionTabNumber = 1;
     TextView birthday,location,gender;
-    ImageView settingImage,imageGender,AIImage;
+    ImageView settingImage,imageGender,AIImage,coverImage,backgroundUser;
     LottieAnimationView progressBar;
     Button btnEditProfile;
+    FirebaseAuth auth;
+    FirebaseUser user;
+
+    private Uri backgroundImageUri;  // Đường dẫn của ảnh background
+
+    // Các hằng số để xác định các hành động (Gallery hoặc Camera)
+    private static final int PReqCode = 2;
+    private static final int REQUESCODE = 2;
+    // Thêm StorageReference để định vị Firebase Storage
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,7 +108,40 @@ public class ProfileFragment extends Fragment {
         tab1  =view.findViewById(R.id.tabItem1);
         tab2  =view.findViewById(R.id.tabItem2);
         tab3  =view.findViewById(R.id.tabItem3);
+        coverImage  = view.findViewById(R.id.background_user);
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         AIImage = view.findViewById(R.id.upload_image_profile);
+        backgroundUser = view.findViewById(R.id.image_cover_profile);
+        coverImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Dialog dialog = new Dialog(getContext());
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.dialog_edit_cover);
+                dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);
+                LinearLayout layoutAddCover = dialog.findViewById(R.id.add_image_cover);
+                layoutAddCover.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (Build.VERSION.SDK_INT >= 22) {
+                            checkAndRequestForPermission();
+                        } else {
+                            if (getActivity().checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, PReqCode);
+                            } else {
+                                openGallery();
+                            }
+                        }
+                    }
+                });
+                dialog.show();
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                dialog.getWindow().setGravity(Gravity.BOTTOM);
+
+            }
+        });
         AIImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,7 +209,105 @@ public class ProfileFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        // cập nhật ảnh đại hiện cho người dùng
+
         return view;
+    }
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent,REQUESCODE);
+    }
+    private void checkAndRequestForPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(ProfileFragment.this.getActivity(), Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ProfileFragment.this.getActivity(), Manifest.permission.POST_NOTIFICATIONS)) {
+                    // Hiển thị giải thích về lý do cần quyền
+                    Toast.makeText(ProfileFragment.this.getActivity()   , "Vui lòng cấp quyền để chọn ảnh", Toast.LENGTH_SHORT).show();
+                    // Hiển thị hộp thoại yêu cầu quyền
+                    ActivityCompat.requestPermissions(ProfileFragment.this.getActivity(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, PReqCode);
+                } else {
+                    // Yêu cầu quyền trực tiếp nếu chưa được cấp
+                    ActivityCompat.requestPermissions(ProfileFragment.this.getActivity(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, PReqCode);
+                }
+            } else {
+                // Nếu quyền đã được cấp, mở thư viện ảnh
+                openGallery();
+            }
+        } else {
+            if (getActivity().checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, PReqCode);
+            } else {
+                openGallery();
+            }
+        }
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQUESCODE && data != null) {
+            backgroundImageUri = data.getData();
+            if (backgroundImageUri != null) {
+                backgroundUser.setImageURI(backgroundImageUri);
+                uploadImageToFirebase();
+            } else {
+            }
+        }
+    }
+    private void uploadImageToFirebase() {
+        try {
+            // Ensure an image is selected
+            if (backgroundImageUri != null) {
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("profile_image");
+
+                // Create an identifier based on timestamp
+                String imageIdentifier = String.valueOf(System.currentTimeMillis());
+
+                final StorageReference imageFilePath = storageReference.child(imageIdentifier);
+
+                // Upload the image
+                imageFilePath.putFile(backgroundImageUri)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            // Get the download URL
+                            imageFilePath.getDownloadUrl().addOnSuccessListener(uri -> {
+                                String imageUrl = uri.toString();
+
+                                // Update the Firestore document with the image URL
+                                updateFirestoreWithImageUrl(imageUrl);
+
+                                Toast.makeText(ProfileFragment.this.getActivity(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(ProfileFragment.this.getActivity(), "Error uploading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+        } catch (Exception e) {
+            Log.e("Image upload error", e.getMessage());
+        }
+    }
+    private void updateFirestoreWithImageUrl(String imageUrl) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Tạo một Map để cập nhật dữ liệu
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("coverImage", imageUrl);
+
+        // Cập nhật dữ liệu trong tài liệu của người dùng
+        db.collection("users").document(user.getUid()).update(updates)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Xử lý khi cập nhật thành công
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Xử lý khi cập nhật thất bại
+                    }
+                });
     }
 
     private void getShowProfile() {
@@ -161,6 +326,7 @@ public class ProfileFragment extends Fragment {
                         String imageUrl = documentSnapshot.getString("profileImage");
                         String nameProfile = documentSnapshot.getString("name");
                         String sex = documentSnapshot.getString("sex");
+                        String background  = documentSnapshot.getString("coverImage");
                         Timestamp timestamp = documentSnapshot.getTimestamp("birthday");
                         if (getActivity() != null && imageUrl != null && !imageUrl.isEmpty() && nameProfile != null && !nameProfile.isEmpty()) {
                             Glide.with(ProfileFragment.this).load(imageUrl).into(imageProfile);
@@ -176,7 +342,7 @@ public class ProfileFragment extends Fragment {
                         }
                         // chuyển sang ngày /tháng/ năm
                         Date birthDate = timestamp.toDate();
-
+                        Glide.with(getActivity()).load(background).into(backgroundUser);
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                         String formattedDate =simpleDateFormat.format(birthDate);
                         birthday.setText(formattedDate);

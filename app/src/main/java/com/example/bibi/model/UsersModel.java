@@ -15,7 +15,7 @@ public class UsersModel {
     String sex;
     String uid;
     Timestamp createdTimestamp;
-
+    String coverImage;
     public UsersModel() {
     }
 
@@ -31,6 +31,14 @@ public class UsersModel {
         this.password = password;
         this.phone = phone;
         this.createdTimestamp = createdTimestamp;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 
     public String getUid() {

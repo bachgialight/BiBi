@@ -20,12 +20,10 @@ import java.util.List;
 public class SimilarArticlesAdapter extends RecyclerView.Adapter<SimilarArticlesAdapter.ViewHolder> {
     Context context;
     List<PostsModel> list;
-
     public SimilarArticlesAdapter(Context context, List<PostsModel> list) {
         this.context = context;
         this.list = list;
     }
-
     @NonNull
     @Override
     public SimilarArticlesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

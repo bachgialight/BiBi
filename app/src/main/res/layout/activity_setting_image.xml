@@ -53,8 +53,6 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/load" />
-
-
             <ImageView
                 android:id="@+id/post_image"
                 android:layout_width="match_parent"

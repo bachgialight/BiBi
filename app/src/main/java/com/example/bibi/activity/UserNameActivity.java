@@ -152,6 +152,7 @@ public class UserNameActivity extends AppCompatActivity {
             usersModel.setEmail(email);
             usersModel.setPassword(password);
             usersModel.setProfileImage(imageUrl);
+            usersModel.setCoverImage("");
             // Add other fields as needed
 
         }

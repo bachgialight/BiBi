@@ -322,10 +322,12 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
                 isLiked = true;
             }
         });
+        long time = System.currentTimeMillis();
 
         heart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (isLiked) {
                     heart.setImageResource(R.drawable.baseline_favorite_border_24);
                 } else {
@@ -338,7 +340,7 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
                         data.put(currentUser.getUid(), true);
                         data.put("postId", postId);
                         data.put("postImage", imageUrl);
-                        data.put("timestamp", System.currentTimeMillis());
+                        data.put("timestamp", time);
                         data.put("labelMap",labels);
                         data.put("title",title);
                         data.put("uid",userId);
@@ -361,6 +363,10 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, SimilarArticlesActivity.class);
+                intent.putExtra("imageUrl",imageUrl);
+                intent.putExtra("title",title);
+                intent.putExtra("timestamp",time);
+
                 context.startActivity(intent);
             }
         });
