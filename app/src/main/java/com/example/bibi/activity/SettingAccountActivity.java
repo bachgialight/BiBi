@@ -3,6 +3,7 @@ package com.example.bibi.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -13,12 +14,13 @@ import android.widget.LinearLayout;
 import com.example.bibi.R;
 
 public class SettingAccountActivity extends AppCompatActivity {
-    LinearLayout showEditEmail;
+    LinearLayout showEditEmail,showHobble;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting_account);
         showEditEmail = findViewById(R.id.email_user);
+        showHobble = findViewById(R.id.hobble);
         showEditEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -33,6 +35,13 @@ public class SettingAccountActivity extends AppCompatActivity {
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 dialog.getWindow().setGravity(Gravity.BOTTOM);
                 dialog.show();
+            }
+        });
+        showHobble.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingAccountActivity.this, InterestsUserActivity.class);
+                startActivity(intent);
             }
         });
     }

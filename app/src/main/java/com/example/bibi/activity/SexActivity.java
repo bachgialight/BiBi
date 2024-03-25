@@ -99,7 +99,7 @@ public class SexActivity extends AppCompatActivity {
                                     .set(usersModel)
                                     .addOnSuccessListener(aVoid -> {
                                         // Xử lý khi dữ liệu được thêm thành công
-                                        Intent intent = new Intent(SexActivity.this, MainActivity.class);
+                                        Intent intent = new Intent(SexActivity.this, InterestsUserActivity.class);
                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                         finish();  // Đóng activity sau khi lưu thành công

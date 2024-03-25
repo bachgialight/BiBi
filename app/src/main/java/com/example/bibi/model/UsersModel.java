@@ -16,6 +16,7 @@ public class UsersModel {
     String uid;
     Timestamp createdTimestamp;
     String coverImage;
+
     public UsersModel() {
     }
 

@@ -107,6 +107,8 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
     List<PostsModel> list;
     private Interpreter interpreter;
     FirebaseFirestore firestore;
+    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
     public PostImageAdapter(Context context, List<PostsModel> list) {
         this.context = context;
         this.list = list;
@@ -140,6 +142,7 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
                 dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);
 
                 LinearLayout downLoadImage = dialog.findViewById(R.id.down_load_image);
+                LinearLayout saveImage  = dialog.findViewById(R.id.save_image_user);
                 downLoadImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -153,7 +156,33 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
                         }
                     }
                 });
+                saveImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (currentUser != null) {
+                            Map<String,Object> data = new HashMap<>();
+                            data.put("postImage",postsModel.getPostImage());
+                            data.put("timestamp",System.currentTimeMillis());
+                            data.put("title",postsModel.getTitle());
+                            data.put("labelMap",postsModel.getLabelMap());
+                            data.put("uid",postsModel.getUid());
+                            data.put("postId",postsModel.getPostId());
+                            FirebaseFirestore.getInstance()
+                                    .collection("saveImage")
+                                    .document(currentUser.getUid())
+                                    .collection("saveImages")
+                                    .document(postsModel.getPostId())
+                                    .set(data)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Toast.makeText(context, "Lưu thành công", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
 
+                    }
+                });
                 dialog.show();
                 dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -305,7 +334,6 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.View
         heart = dialog.findViewById(R.id.heart);
         insideHeart = dialog.findViewById(R.id.insideHeard);
         bookmarkImage = dialog.findViewById(R.id.bookmark_save_image);
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         like(postId,heart);
 
