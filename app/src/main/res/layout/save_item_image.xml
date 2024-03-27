@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_height="wrap_content">
-
-
     <com.makeramen.roundedimageview.RoundedImageView
-        android:layout_width="110dp"
+        android:layout_width="match_parent"
         android:id="@+id/matching_image"
         android:adjustViewBounds="true"
         android:layout_marginStart="5dp"
@@ -15,8 +13,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="5dp"
         app:riv_corner_radius="12dp"
-        android:layout_height="120dp">
-
+        android:layout_height="135dp">
     </com.makeramen.roundedimageview.RoundedImageView>
     <ImageView
         android:id="@+id/show_item_dialog"
@@ -28,6 +25,5 @@
         android:padding="5dp"
         android:layout_height="30dp"
         app:tint="@color/white" />
-
 </LinearLayout>
 

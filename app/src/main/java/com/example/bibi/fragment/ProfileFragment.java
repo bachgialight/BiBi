@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -48,9 +49,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -80,7 +83,7 @@ public class ProfileFragment extends Fragment {
     Button btnEditProfile;
     FirebaseAuth auth;
     FirebaseUser user;
-
+    TextView countPosts;
     private Uri backgroundImageUri;  // Đường dẫn của ảnh background
 
     // Các hằng số để xác định các hành động (Gallery hoặc Camera)
@@ -111,8 +114,9 @@ public class ProfileFragment extends Fragment {
         coverImage  = view.findViewById(R.id.background_user);
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        AIImage = view.findViewById(R.id.upload_image_profile);
+        //AIImage = view.findViewById(R.id.upload_image_profile);
         backgroundUser = view.findViewById(R.id.image_cover_profile);
+        countPosts = view.findViewById(R.id.quantity_follower_user_profile);
         coverImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,6 +125,8 @@ public class ProfileFragment extends Fragment {
                 dialog.setContentView(R.layout.dialog_edit_cover);
                 dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);
                 LinearLayout layoutAddCover = dialog.findViewById(R.id.add_image_cover);
+                LinearLayout layoutDeleteCover = dialog.findViewById(R.id.delete_cover_image);
+
                 layoutAddCover.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -135,6 +141,23 @@ public class ProfileFragment extends Fragment {
                         }
                     }
                 });
+                layoutDeleteCover.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // cậ nhật lại ảnh bìa bằng ""
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection("users")
+                                .document(user.getUid())
+                                .update("coverImage","")
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(ProfileFragment.this.getActivity(), "Xóa ảnh bìa thành công", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                });
+
                 dialog.show();
                 dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -142,13 +165,27 @@ public class ProfileFragment extends Fragment {
 
             }
         });
-        AIImage.setOnClickListener(new View.OnClickListener() {
+        // chuyển động
+        final Animation zoomInAnim = AnimationUtils.loadAnimation(ProfileFragment.this.getActivity(), R.anim.zoom_in);
+        final Animation zoomOutAnim = AnimationUtils.loadAnimation(ProfileFragment.this.getActivity(), R.anim.zoom_out);
+        imageProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProfileFragment.this.getActivity(), ImageLabelingActivity.class);
-                startActivity(intent);
+                imageProfile.startAnimation(zoomInAnim);
+                imageProfile.startAnimation(zoomOutAnim);
+
             }
         });
+
+        // điếm số lượng bài viết của người dùng
+        countPostsImage();
+//        AIImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(ProfileFragment.this.getActivity(), ImageLabelingActivity.class);
+//                startActivity(intent);
+//            }
+//        });
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.fragment_container,new ImageUserFragment(), null)
@@ -211,6 +248,26 @@ public class ProfileFragment extends Fragment {
 
         return view;
     }
+
+    private void countPostsImage() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference postsRef = db.collection("posts");
+        postsRef.whereEqualTo("uid",FirebaseUntil.currentUid())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        int numberOfPosts = queryDocumentSnapshots.size();
+                        countPosts.setText(numberOfPosts + " ảnh");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+    }
+
     private void openGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");

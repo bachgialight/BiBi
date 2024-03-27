@@ -5,16 +5,18 @@
     android:layout_margin="10dp"
     android:layout_width="match_parent"
     app:cardCornerRadius="16dp"
+
+
     android:layout_height="match_parent">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/showImageFull"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:layout_marginTop="28dp"
+            android:layout_height="480dp"
+            android:scaleType="centerCrop"
             android:adjustViewBounds="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

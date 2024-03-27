@@ -87,4 +87,5 @@ dependencies {
     implementation ("com.algolia:algoliasearch-core:3.16.5")
     implementation ("com.algolia:algoliasearch-java-net:3.16.5")
     //implementation ("com.algolia:algoliasearch-android:3.27.0")
+    implementation ("com.github.chrisbanes:PhotoView:2.3.0")
 }
